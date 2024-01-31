@@ -1,33 +1,85 @@
+import re
+from datetime import datetime
+
 import scrapy
-from scrapy import FormRequest
+from scrapy import Request
 
 
 class DahlemResearchSchoolSpider(scrapy.Spider):
     name = "drs"
     allowed_domains = ["www.drs.fu-berlin.de"]
     start_urls = ["https://www.drs.fu-berlin.de/course_list"]
+    base_url = "https://www.drs.fu-berlin.de"
 
-    def start_requests(self, response):
-        semester_option_labels_values = extract_option_and_values("select#edit-semester")
-        category_option_labels_values = extract_option_and_values("select#edit-parent-container")
-        language_option_labels_values = extract_option_and_values("select#edit-field-language-value")
-        title = ""  # TODO get as param
+    def parse(self, response):
+        english_code = "2"
+        semester_option_labels_values = extract_option_and_values(response, "select#edit-semester")
+        semesters = filter_semester(semester_option_labels_values)
+        url = (
+            "https://www.drs.fu-berlin.de/en/course_list?"
+            "semester={}&"
+            "title=&"
+            f"field_language_value={english_code}"
+        )
 
-        # https://www.drs.fu-berlin.de/en/course_list?semester=20&title=&field_language_value=All
-        # https://www.drs.fu-berlin.de/en/course_list?
-        #   semester=20&
-        #   title=&
-        #   parent_container%5B%5D=52648&
-        #   field_language_value=All
-        return [FormRequest(
-            url="http://www.example.com/post/action",
-            formdata={"title": title, "age": "27"},
-            callback=self.after_post,
-        )]
+        return [
+            Request(
+                url.format(semester_value),
+                callback=self.parse_page,
+            )
+            for semester_value in semesters
+        ]
+
+    def parse_page(self, response):
+        next_page = response.css("div.view-course-list ul.pagination li.next a ::attr(href)").extract_first()
+
+        for row in response.css("div.table-responsive tr"):
+            title = row.css("td.views-field-title a ::text").extract_first()
+            if not title:
+                continue
+            course_url = row.css("td.views-field-title a ::attr(href)").extract_first().strip()
+            start = row.css("td.views-field-course-start-time::text").extract_first()
+            end = row.css("td.views-field-course-end-time::text").extract_first()
+            capacity_bookings = row.css("td.views-field-oc-course-size::text").extract_first().strip()
+            availability = "unavailable"
+            if capacity_bookings:
+                if capacity_bookings == "0":
+                    availability = "unknown"
+                try:
+                    # e.g. 16 / 24
+                    capacity, bookings = capacity_bookings.split("/")
+                    if int(capacity) < int(bookings):
+                        availability = "available"
+                except ValueError:
+                    pass
+
+            yield dict(
+                title=title.strip(),
+                course_url=f"{self.base_url}{course_url}",
+                start=start.strip(),
+                end=end.strip(),
+                availability=availability
+            )
+
+        yield response.follow(f"{self.base_url}{next_page}", callback=self.parse)
 
 
-# TODO filter by semesters in the future
-# TODO crawl all pages after the filter
+def filter_semester(semester_option_labels_values):
+    filtered_semesters = []
+    for label, value in semester_option_labels_values.items():
+        found = re.search(r"(\d{4})(\/)?(\d{2})?", label)
+        if found:
+            past_year = found.group(1)
+            current_year = found.group(3)
+            last_year = datetime.now().year - 1
+            if current_year and int(current_year) >= last_year:
+                print(past_year, current_year, ">=", datetime.now().year)
+                filtered_semesters.append(value)
+            elif past_year and int(past_year) >= last_year:
+                print(past_year, current_year, ">=", datetime.now().year)
+                filtered_semesters.append(value)
+    return filtered_semesters
+
 
 def extract_option_and_values(response, select_id):
     semester_options = response.css(select_id)
