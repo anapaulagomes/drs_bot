@@ -73,10 +73,8 @@ def filter_semester(semester_option_labels_values):
             current_year = found.group(3)
             last_year = datetime.now().year - 1
             if current_year and int(current_year) >= last_year:
-                print(past_year, current_year, ">=", datetime.now().year)
                 filtered_semesters.append(value)
             elif past_year and int(past_year) >= last_year:
-                print(past_year, current_year, ">=", datetime.now().year)
                 filtered_semesters.append(value)
     return filtered_semesters
 
