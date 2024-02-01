@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "sabia"
+name = "drs"
 version = "0.1.0"
 description = ""
 authors = ["Ana Paula Gomes <apgomes88@gmail.com>"]
