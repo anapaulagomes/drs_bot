@@ -11,6 +11,8 @@ class DahlemResearchSchoolSpider(scrapy.Spider):
     start_urls = ["https://www.drs.fu-berlin.de/course_list"]
     base_url = "https://www.drs.fu-berlin.de"
 
+    # TODO read courses csv and add there only the new ones
+
     def parse(self, response):
         english_code = "2"
         semester_option_labels_values = extract_option_and_values(response, "select#edit-semester")
@@ -58,7 +60,8 @@ class DahlemResearchSchoolSpider(scrapy.Spider):
                 course_url=f"{self.base_url}{course_url}",
                 start=start.strip(),
                 end=end.strip(),
-                availability=availability
+                availability=availability,
+                sent_at=None
             )
 
         yield response.follow(f"{self.base_url}{next_page}", callback=self.parse)
