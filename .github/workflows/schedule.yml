@@ -32,6 +32,7 @@ jobs:
       run: poetry run python bot.py
 
     - name: Update courses CSV
+      continue-on-error: true
       run: |
         git config --global user.name "DRS GitHub"
         git config --global user.email "DRSGitHub@users.noreply.github.com"
