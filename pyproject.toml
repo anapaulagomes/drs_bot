@@ -1,9 +1,5 @@
 [tool.poetry]
-name = "drs"
-version = "0.1.0"
-description = ""
-authors = ["Ana Paula Gomes <apgomes88@gmail.com>"]
-readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -12,8 +8,3 @@ python-dotenv = "^1.0.1"
 pandas = "^2.2.0"
 scrapy = "^2.11.1"
 python-dateutil = "^2.9.0.post0"
-
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"

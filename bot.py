@@ -36,7 +36,7 @@ def escape_markdown(text):
 
 def send_new_courses():
     message = "🆕 [{course_title}]({course_url}) from {start} to {end}"
-    df = pd.read_csv("courses.csv", sep='\t')
+    df = pd.read_csv("courses.csv")
     for _, row in df[df["sent_at"].isna()].iterrows():
         start_date = parse(row['start'])
         in_the_future = start_date > datetime.now()
@@ -52,7 +52,7 @@ def send_new_courses():
             send_telegram_message(formatted_message)
             df['sent_at'] = str(datetime.now())
 
-    df.to_csv('courses.csv', index=False, sep='\t')  # scrapy friendly
+    df.to_csv('courses.csv', index=False)
 
 
 send_new_courses()

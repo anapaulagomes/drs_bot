@@ -18,5 +18,7 @@ poetry shell
 Running it locally:
 
 ```
-scrapy runspider drs.py -o courses.csv
+scrapy crawl drs
 ```
+
+The pipeline will take care of updating the file `courses.csv`.

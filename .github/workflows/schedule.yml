@@ -23,7 +23,7 @@ jobs:
         poetry install
 
     - name: Crawl courses
-      run: scrapy runspider drs.py -o courses.csv
+      run: scrapy crawl drs
 
     - name: Notify
       env:
