@@ -23,13 +23,13 @@ jobs:
         poetry install
 
     - name: Crawl courses
-      run: scrapy crawl drs
+      run: poetry run scrapy crawl drs
 
     - name: Notify
       env:
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-      run: python bot.py
+      run: poetry run python bot.py
 
     - name: Update courses CSV
       run: |
