@@ -38,7 +38,7 @@ def send_new_courses():
     message = "🆕 [{course_title}]({course_url}) from {start} to {end}"
     df = pd.read_csv("courses.csv")
     for _, row in df[df["sent_at"].isna()].iterrows():
-        start_date = parse(row['start'])
+        start_date = parse(row['start'], dayfirst=True)
         in_the_future = start_date > datetime.now()
         has_spots = row['availability'] == "available"
         if in_the_future and has_spots:
