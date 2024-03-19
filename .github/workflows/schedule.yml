@@ -35,5 +35,5 @@ jobs:
       run: |
         git config --global user.name "DRS GitHub"
         git config --global user.email "DRSGitHub@users.noreply.github.com"
-        git commit -a -m "Update courses CSV once again"
+        git commit -am "Update courses CSV once again"
         git push origin main
