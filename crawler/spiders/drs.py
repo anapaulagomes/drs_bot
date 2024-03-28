@@ -48,9 +48,9 @@ class DahlemResearchSchoolSpider(scrapy.Spider):
                 if capacity_bookings == "0":
                     availability = "unknown"
                 try:
-                    # e.g. 16 / 24
+                    # e.g. 15 / 5
                     capacity, bookings = capacity_bookings.split("/")
-                    if int(capacity) < int(bookings):
+                    if int(bookings) < int(capacity):
                         availability = "available"
                 except ValueError:
                     pass
