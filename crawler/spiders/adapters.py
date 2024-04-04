@@ -19,7 +19,9 @@ def extract_status_from_capacity_bookings(capacity_bookings):
             availability = "unavailable"
     elif len(capacity_bookings_list) > 1:
         # format: 16 / 24
-        if int(capacity_bookings_list[1]) >= int(capacity_bookings_list[0]):
+        capacity = capacity_bookings_list[0]
+        bookings = capacity_bookings_list[1]
+        if int(bookings) >= int(capacity):
             availability = "waiting list"
         else:
             availability = "available"
