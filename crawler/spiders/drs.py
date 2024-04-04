@@ -4,6 +4,8 @@ from datetime import datetime
 import scrapy
 from scrapy import Request
 
+from crawler.spiders.adapters import extract_status_from_capacity_bookings
+
 
 class DahlemResearchSchoolSpider(scrapy.Spider):
     name = "drs"
@@ -43,17 +45,7 @@ class DahlemResearchSchoolSpider(scrapy.Spider):
             start = row.css("td.views-field-course-start-time::text").extract_first()
             end = row.css("td.views-field-course-end-time::text").extract_first()
             capacity_bookings = row.css("td.views-field-oc-course-size::text").extract_first().strip()
-            availability = "unavailable"
-            if capacity_bookings:
-                if capacity_bookings == "0":
-                    availability = "unknown"
-                try:
-                    # e.g. 15 / 5
-                    capacity, bookings = capacity_bookings.split("/")
-                    if int(bookings) < int(capacity):
-                        availability = "available"
-                except ValueError:
-                    pass
+            availability = extract_status_from_capacity_bookings(capacity_bookings)
 
             yield dict(
                 title=title.strip(),
@@ -61,7 +53,7 @@ class DahlemResearchSchoolSpider(scrapy.Spider):
                 start=start.strip(),
                 end=end.strip(),
                 availability=availability,
-                sent_at=None
+                updated_at=None
             )
 
         yield response.follow(f"{self.base_url}{next_page}", callback=self.parse)

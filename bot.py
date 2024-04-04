@@ -35,22 +35,24 @@ def escape_markdown(text):
 
 
 def send_new_courses():
-    message = "🆕 [{course_title}]({course_url}) from {start} to {end}"
+    available_statuses = {"waiting list": "📖", "available": "💥"}
+    message = "🆕 [{course_title}]({course_url}) from {start} to {end} {status}"
     df = pd.read_csv("courses.csv")
-    for _, row in df[df["sent_at"].isna()].iterrows():
+    for _, row in df[df["updated_at"].isna()].iterrows():
         start_date = parse(row['start'], dayfirst=True)
         in_the_future = start_date > datetime.now()
-        has_spots = row['availability'] == "available"
+        has_spots = row['availability'] in available_statuses.keys()
         if in_the_future and has_spots:
             formatted_message = message.format(
                 course_title=escape_markdown(row['title']),
                 course_url=row['course_url'],
                 start=escape_markdown(row['start']),
-                end=escape_markdown(row['end'])
+                end=escape_markdown(row['end']),
+                status=available_statuses.get(row['availability'])
             )
             print(formatted_message)
             send_telegram_message(formatted_message)
-            df['sent_at'] = str(datetime.now())
+            df['updated_at'] = str(datetime.now())
 
     df.to_csv('courses.csv', index=False)
 
