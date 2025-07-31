@@ -7,11 +7,15 @@ class DuplicatesPipeline:
         self.courses = pd.read_csv("courses.csv")
 
     def process_item(self, item, spider):
-        item_exists = (
-                (self.courses['title'] == item['title']) &
-                (self.courses['course_url'] == item['course_url'])
+        if not all([item['title'], item['course_url']]):
+            raise DropItem(f"Invalid item: {item}")
+
+        is_duplicate = (
+            (self.courses['title'] == item['title']) &
+            (self.courses['course_url'] == item['course_url'])
         ).any()
-        if item_exists:
+
+        if is_duplicate:
             raise DropItem(f"Duplicate item found: {item}")
         else:
             self.courses.loc[len(self.courses)] = list(item.values())
