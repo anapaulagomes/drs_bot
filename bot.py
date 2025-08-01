@@ -1,6 +1,8 @@
 import os
 import re
 from datetime import datetime
+from random import randint
+from time import sleep
 
 from dateutil.parser import parse
 import pandas as pd
@@ -39,7 +41,11 @@ def send_new_courses():
     message = "🆕 [{course_title}]({course_url}) from {start} to {end} {status}"
     df = pd.read_csv("courses.csv")
     for _, row in df[df["updated_at"].isna()].iterrows():
-        start_date = parse(row['start'], dayfirst=True)
+        try:
+            start_date = parse(row['start'], dayfirst=True)
+        except TypeError:
+            print(f"TypeError: {row['start']} {row}")
+            continue
         in_the_future = start_date > datetime.now()
         has_spots = row['availability'] in available_statuses.keys()
         if in_the_future and has_spots:
@@ -51,6 +57,7 @@ def send_new_courses():
                 status=available_statuses.get(row['availability'])
             )
             print(formatted_message)
+            sleep(randint(1,5))  # take some time so it doesn't reach the api's limits
             send_telegram_message(formatted_message)
             df['updated_at'] = str(datetime.now())
 
