@@ -6,7 +6,7 @@ python = "^3.11"
 requests = "^2.32.2"
 python-dotenv = "^1.0.1"
 pandas = "^2.2.0"
-scrapy = "^2.11.2"
+scrapy = "^2.14.1"
 python-dateutil = "^2.9.0.post0"
 
 [tool.poetry.group.dev.dependencies]
